@@ -1,5 +1,7 @@
-package vista_control;
+package sala.chat.client.view;
 
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -8,18 +10,14 @@ import java.io.IOException;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-
-import modelo.Client;
-
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import java.awt.Font;
-import java.awt.Color;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
-import javax.swing.DropMode;
+
+import sala.chat.client.model.Client;
 
 public class JFClient extends JFrame{
 

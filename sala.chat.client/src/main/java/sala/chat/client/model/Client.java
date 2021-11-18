@@ -1,4 +1,4 @@
-package modelo;
+package sala.chat.client.model;
 
 import java.awt.EventQueue;
 import java.io.IOException;
@@ -14,7 +14,7 @@ import javax.swing.JTextArea;
 
 /**
  * En esta clase se trabaja sobre UDP, es capaz de recibir  y enviar los mensajes provenientes del servidor y mostrarlos por pantalla (la pantalla de la clase JFClient).
- * también se envía el puerto actual.
+ * tambiï¿½n se envï¿½a el puerto actual.
  * @author Bryan Ti
  *
  */
@@ -26,9 +26,9 @@ public class Client
 	private final int MAX_LENGTH = 2000;
 	
 	/**
-	 * Este método instancia un DatagramSocket, mediante el cual se van a recibir los mensajes provenientes del servidor, el puerto de este datagramSocket
+	 * Este mï¿½todo instancia un DatagramSocket, mediante el cual se van a recibir los mensajes provenientes del servidor, el puerto de este datagramSocket
 	 * es asignado por el S.O.
-	 * Se llama al método sendPort() para enviar el puerto asignado por el S.O.
+	 * Se llama al mï¿½todo sendPort() para enviar el puerto asignado por el S.O.
 	 * @throws IOException
 	 */
 	public Client() throws IOException
@@ -42,7 +42,7 @@ public class Client
 	}
 	
 	/**
-	 * Este método inicia un hilo el cual se encarga de enviar los mensajes creados por el usuario.
+	 * Este mï¿½todo inicia un hilo el cual se encarga de enviar los mensajes creados por el usuario.
 	 * @param message, mensaje a enviar.
 	 * @throws IOException
 	 */
@@ -66,8 +66,8 @@ public class Client
 	}
 	
 	/**
-	 * Método el cual recibe mensajes provenientes del servidor y los muestra a través de la interfaz.
-	 * @param area, corresponde con el JTextArea por el cual se mostrará el mensaje recibido por el ervidor.
+	 * Mï¿½todo el cual recibe mensajes provenientes del servidor y los muestra a travï¿½s de la interfaz.
+	 * @param area, corresponde con el JTextArea por el cual se mostrarï¿½ el mensaje recibido por el ervidor.
 	 */
 	public void receiverMessages(JTextArea area)
 	{
@@ -98,7 +98,7 @@ public class Client
 	}
 	
 	/**
-	 * Método que envia puertos mediante un nuevo socket2, este socket2 es temporal y sólo se encarga de enviar el puerto del socket1 por el cual se envía y recibe
+	 * Mï¿½todo que envia puertos mediante un nuevo socket2, este socket2 es temporal y sï¿½lo se encarga de enviar el puerto del socket1 por el cual se envï¿½a y recibe
 	 * los mensjaes, es decir la variable llamada "socket".
 	 * @throws IOException
 	 */

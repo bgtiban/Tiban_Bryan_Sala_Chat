@@ -1,4 +1,4 @@
-package modelo;
+package sala.chat.server;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -14,8 +14,8 @@ import javax.swing.plaf.basic.BasicInternalFrameTitlePane.MaximizeAction;
 
 /**
  * En esta clase se trabaja con UDP, existen en el servidor dos sockets que reciben paquetes,
- * un socket recibe un paquete con únicamente el nº de puerto del cliente, y otro socket recibe un paquete con el mensaje de texto enviado por el cliente.
- * este servidor muestra por consola mensajes los cuales informan de los clientes que se han conectado y los mensjaes que se están transmitiendo. 
+ * un socket recibe un paquete con Ãºnicamente el nÂº de puerto del cliente, y otro socket recibe un paquete con el mensaje de texto enviado por el cliente.
+ * este servidor muestra por consola mensajes los cuales informan de los clientes que se han conectado y los mensjaes que se estï¿½n transmitiendo. 
  * @author Bryan Ti
  *
  */
@@ -29,11 +29,11 @@ public class Server
 	
 	
 	/**
-	 * Método que instancia una lista en la cual se almacenan los puertos de los clientes para poder realizar un "mulsticast" de un mensaje entrante.
-	 * También se instancia el socket mediante el cual se van a recibir mensajes y se crea y activa un hilo para recibir los puertos.
-	 * También se inicia el hilo mediante el cual se van a recibir los mensajes.
-	 * @param host, es el nombre o IP que recibirá el servidor (para recibir mensajes).
-	 * @param port, es el puerto por el que escuchará el servidor (para recibir mensajes).
+	 * Mï¿½todo que instancia una lista en la cual se almacenan los puertos de los clientes para poder realizar un "mulsticast" de un mensaje entrante.
+	 * Tambiï¿½n se instancia el socket mediante el cual se van a recibir mensajes y se crea y activa un hilo para recibir los puertos.
+	 * Tambiï¿½n se inicia el hilo mediante el cual se van a recibir los mensajes.
+	 * @param host, es el nombre o IP que recibirï¿½ el servidor (para recibir mensajes).
+	 * @param port, es el puerto por el que escucharï¿½ el servidor (para recibir mensajes).
 	 * @throws SocketException
 	 * @throws IOException
 	 */
@@ -48,8 +48,8 @@ public class Server
 	}
 	
 	/**
-	 * Método que crea un hilo el cual contiene un bucle que se encarga de recibir mensajes de los clientes, 
-	 * en cuanto recibe un mensjae lo imprime por consola y lo reenvía a todos los clientes conectados mediante el método llamado send().
+	 * Mï¿½todo que crea un hilo el cual contiene un bucle que se encarga de recibir mensajes de los clientes, 
+	 * en cuanto recibe un mensjae lo imprime por consola y lo reenvï¿½a a todos los clientes conectados mediante el mï¿½todo llamado send().
 	 * @throws IOException
 	 */
 	private void receiverMessages() throws IOException
@@ -77,7 +77,7 @@ public class Server
 	}
 	
 	/**
-	 * Método que retorna el mensaje del cliente en String.
+	 * Mï¿½todo que retorna el mensaje del cliente en String.
 	 * @return, String  que corresponde con el mensaje del cliente.
 	 */
 	private String getMessage()
@@ -87,8 +87,8 @@ public class Server
 	
 	
 	/**
-	 * Este método recorre una lista que contiene los puertos de los clientes conectados.
-	 * se crea un datagrama nuevo por cada reenvío.
+	 * Este mï¿½todo recorre una lista que contiene los puertos de los clientes conectados.
+	 * se crea un datagrama nuevo por cada reenvï¿½o.
 	 * @throws UnknownHostException
 	 */
 	private void send() throws UnknownHostException
@@ -108,7 +108,7 @@ public class Server
 	}
 	
 	/**
-	 * Este método inicia un hilo el cual recibe el puerto del cliente conectado.
+	 * Este mï¿½todo inicia un hilo el cual recibe el puerto del cliente conectado.
 	 */
 	private void receiverPORT()
 	{
