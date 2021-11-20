@@ -95,7 +95,7 @@ public class Server {
 		Thread t = new Thread(new Runnable() {
 			@Override
 			public void run() {
-				try (DatagramSocket socketReceptor = new DatagramSocket(new InetSocketAddress(SalaChatInfo.LOCALHOST, LISTENING_PORT_NEW_CONECTIONS))) {
+				try (DatagramSocket socketReceptor = new DatagramSocket(new InetSocketAddress(SalaChatInfo.SERVER_HOST, LISTENING_PORT_NEW_CONECTIONS))) {
 					byte[] msg = new byte[10];
 					DatagramPacket receivedPacket = new DatagramPacket(msg, 10);
 					while (true) {
