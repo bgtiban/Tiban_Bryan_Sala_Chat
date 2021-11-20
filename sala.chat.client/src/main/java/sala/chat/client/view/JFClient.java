@@ -61,39 +61,12 @@ public class JFClient extends JFrame{
 		tfEnviar.setBounds(140, 569, 321, 33);
 		getContentPane().add(tfEnviar);
 
+
 		buttons();
 
 
+		tfEnviar.addKeyListener(newKeyListener());
 		this.setVisible(true);
-
-		tfEnviar.addKeyListener(new KeyListener() {
-
-			@Override
-			public void keyTyped(KeyEvent e) {
-
-			}
-
-			@Override
-			public void keyReleased(KeyEvent e) {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void keyPressed(KeyEvent e) {
-				if(e.getKeyCode()==10)
-				{
-					try {
-						client.sendMessage(tfNombre.getText().toUpperCase() + ": " + tfEnviar.getText());
-						tfEnviar.setText("");
-					} catch (IOException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-				}
-			}
-		});
-
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
@@ -105,6 +78,35 @@ public class JFClient extends JFrame{
 		 textArea.setLineWrap(true);
 		 scrollPane.setViewportView(textArea);
 		 client.receiverMessages(textArea);
+
+	}
+
+	private KeyListener newKeyListener() {
+		return new KeyListener() {
+
+			@Override
+			public void keyTyped(KeyEvent e) {
+
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e) {
+
+			}
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if(e.getKeyCode()==10)
+				{
+					try {
+						client.sendMessage(tfNombre.getText().toUpperCase() + ": " + tfEnviar.getText());
+						tfEnviar.setText("");
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+				}
+			}
+		};
 	}
 
 	private void buttons()
@@ -117,7 +119,7 @@ public class JFClient extends JFrame{
 				try {
 					client.sendMessage(tfNombre.getText().toUpperCase() + ": " + tfEnviar.getText());
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
+
 					e.printStackTrace();
 				}
 				tfEnviar.setText("");

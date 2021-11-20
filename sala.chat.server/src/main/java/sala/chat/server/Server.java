@@ -29,22 +29,32 @@ import sala.chat.comunes.constants.SalaChatInfo;
 public class Server {
 
 	private DatagramSocket socketServer;
-	private HashSet<InetSocketAddress> clientPorts = new HashSet<>();;
+	private HashSet<InetSocketAddress> clientPorts = new HashSet<>();
+	private int listeningConnectionsPort;
 
 	/**
 	 * Constructor por defecto, inicia 2 hilos: uno para recibir conexiones nuevas de clientes y otro para envíar mensajes.
 	 *
-	 * @param host, es el nombre o IP que recibirá el servidor (para recibir
+	 * @param serverIP, es el nombre o IP que recibirá el servidor (para recibir
 	 *        mensajes).
-	 * @param port, es el puerto por el que escuchará el servidor (para recibir
-	 *        mensajes).
+	 * @param listeningMessagesPort, puerto de esucha para recibir los mensajes enviados por clientes.
+	 * @param listeningConnectionsPort, puerto de escucha para nuevas conexiones.
 	 * @throws SocketException
 	 * @throws IOException
 	 */
-	public Server(String host, int port) throws SocketException, IOException {
-		socketServer = new DatagramSocket(new InetSocketAddress(host, port));
-		ThreadReceivePortNewClientConnected();
-		ThreadReceiverMessages();
+	public Server(String serverIP, int listeningMessagesPort, int listeningConnectionsPort){
+
+		try {
+			this.listeningConnectionsPort = listeningConnectionsPort;
+			this.socketServer = new DatagramSocket(new InetSocketAddress(serverIP, listeningMessagesPort));
+			ThreadReceivePortNewClientConnected();
+			ThreadReceiverMessages();
+		} catch (SocketException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 	}
 
 	/**
@@ -99,7 +109,7 @@ public class Server {
 		Thread t = new Thread(new Runnable() {
 			@Override
 			public void run() {
-				try (DatagramSocket socketReceptor = new DatagramSocket(new InetSocketAddress(SalaChatInfo.SERVER_HOST, SalaChatInfo.LISTENING_PORT_NEW_CONECTIONS))) {
+				try (DatagramSocket socketReceptor = new DatagramSocket(new InetSocketAddress(socketServer.getLocalAddress(), listeningConnectionsPort))) {
 					while (true) {
 						byte[] msg = new byte[SalaChatInfo.MAX_LENGTH];
 						DatagramPacket receivedPacket = new DatagramPacket(msg, msg.length);
