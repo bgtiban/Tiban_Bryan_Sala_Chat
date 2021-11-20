@@ -1,7 +1,11 @@
 package sala.chat.client.model;
 
 import java.awt.EventQueue;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -10,6 +14,7 @@ import java.net.InetSocketAddress;
 
 import javax.swing.JTextArea;
 
+import sala.chat.comunes.Host;
 import sala.chat.comunes.constants.SalaChatInfo;
 
 /**
@@ -35,15 +40,15 @@ public class Client {
 	 */
 	public Client() throws IOException {
 		// puerto 0 = El S.O asigna un puerto libre.
-		socketClient = new DatagramSocket(new InetSocketAddress(SalaChatInfo.LOCALHOST, 0));
-		sendPortNumber();
+		socketClient = new DatagramSocket(new InetSocketAddress(SalaChatInfo.LOCALHOST, SalaChatInfo.FREE_PORT));
+		sendMyHostToServer();
 		msgReceiver = new byte[SalaChatInfo.MAX_LENGTH];
 		packetReceiver = new DatagramPacket(msgReceiver, SalaChatInfo.MAX_LENGTH);
 
 	}
 
 	/**
-	 * Este m�todo inicia un hilo el cual se encarga de enviar los mensajes creados
+	 * Este método inicia un hilo el cual se encarga de enviar los mensajes creados
 	 * por el usuario.
 	 *
 	 * @param message, mensaje a enviar.
@@ -59,7 +64,6 @@ public class Client {
 							InetAddress.getByName(SalaChatInfo.SERVER_HOST), SalaChatInfo.SERVER_PORT);
 					socketClient.send(packetSender);
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -90,12 +94,10 @@ public class Client {
 				});
 
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (InterruptedException ie) {
 				ie.printStackTrace();
 			} catch (InvocationTargetException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -107,9 +109,19 @@ public class Client {
 	 *
 	 * @throws IOException
 	 */
-	private void sendPortNumber() throws IOException {
-		String message = String.valueOf(socketClient.getLocalPort());
-		DatagramPacket datagramPacket = new DatagramPacket(message.getBytes(), message.getBytes().length, InetAddress.getByName(SalaChatInfo.LOCALHOST), 1234);
+	private void sendMyHostToServer() throws IOException {
+		Host me = new Host();
+		me.setIp(socketClient.getLocalAddress().getHostAddress());
+		me.setPort(socketClient.getLocalPort());
+
+		ByteArrayOutputStream meBytesOS = new ByteArrayOutputStream(6400);
+		ObjectOutputStream oos = new ObjectOutputStream(meBytesOS);
+		oos.writeObject(me);
+		oos.flush();
+
+		DatagramPacket datagramPacket = new DatagramPacket(meBytesOS.toByteArray(), meBytesOS.toByteArray().length, InetAddress.getByName(SalaChatInfo.SERVER_HOST), SalaChatInfo.LISTENING_PORT_NEW_CONECTIONS);
 		socketClient.send(datagramPacket);
+
+		oos.close();
 	}
 }

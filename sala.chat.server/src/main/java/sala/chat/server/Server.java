@@ -1,6 +1,9 @@
 package sala.chat.server;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectInputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -9,6 +12,7 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.HashSet;
 
+import sala.chat.comunes.Host;
 import sala.chat.comunes.constants.SalaChatInfo;
 
 /**
@@ -23,9 +27,9 @@ import sala.chat.comunes.constants.SalaChatInfo;
  *
  */
 public class Server {
-	private static final int LISTENING_PORT_NEW_CONECTIONS = 1234;
+
 	private DatagramSocket socketServer;
-	private HashSet<InetSocketAddress> ports = new HashSet<>();;
+	private HashSet<InetSocketAddress> clientPorts = new HashSet<>();;
 
 	/**
 	 * Constructor por defecto, inicia 2 hilos: uno para recibir conexiones nuevas de clientes y otro para envíar mensajes.
@@ -56,11 +60,11 @@ public class Server {
 			public void run() {
 				while (true) {
 					try {
-						byte[] lastMessageReceivedBytes = new byte[SalaChatInfo.MAX_LENGTH];
-						DatagramPacket packet = new DatagramPacket(lastMessageReceivedBytes, SalaChatInfo.MAX_LENGTH);
-						socketServer.receive(packet);
-						System.out.println(new String(lastMessageReceivedBytes).trim());
-						sendMulticast(lastMessageReceivedBytes);
+						byte[] messageReceivedBytes = new byte[SalaChatInfo.MAX_LENGTH];
+						DatagramPacket messageReceivedDatagram = new DatagramPacket(messageReceivedBytes, SalaChatInfo.MAX_LENGTH);
+						socketServer.receive(messageReceivedDatagram);
+						System.out.println(new String(messageReceivedBytes).trim());
+						sendMulticast(messageReceivedBytes);
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
@@ -77,9 +81,9 @@ public class Server {
 	 * @throws UnknownHostException
 	 */
 	private void sendMulticast(byte[] message) throws UnknownHostException {
-		for (InetSocketAddress port : ports) {
+		for (InetSocketAddress inetSocket : clientPorts) {
 			try {
-				DatagramPacket dp = new DatagramPacket(message, message.length, InetAddress.getByName(SalaChatInfo.LOCALHOST), port.getPort());
+				DatagramPacket dp = new DatagramPacket(message, message.length, InetAddress.getByName(SalaChatInfo.LOCALHOST), inetSocket.getPort());
 				socketServer.send(dp);
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -95,16 +99,24 @@ public class Server {
 		Thread t = new Thread(new Runnable() {
 			@Override
 			public void run() {
-				try (DatagramSocket socketReceptor = new DatagramSocket(new InetSocketAddress(SalaChatInfo.SERVER_HOST, LISTENING_PORT_NEW_CONECTIONS))) {
-					byte[] msg = new byte[10];
-					DatagramPacket receivedPacket = new DatagramPacket(msg, 10);
+				try (DatagramSocket socketReceptor = new DatagramSocket(new InetSocketAddress(SalaChatInfo.SERVER_HOST, SalaChatInfo.LISTENING_PORT_NEW_CONECTIONS))) {
 					while (true) {
+						byte[] msg = new byte[SalaChatInfo.MAX_LENGTH];
+						DatagramPacket receivedPacket = new DatagramPacket(msg, msg.length);
 						socketReceptor.receive(receivedPacket);
 
-						System.out.println("Cliente nuevo con puerto: " + new String(msg).trim());
-						Thread.sleep(2000);
-						ports.add(new InetSocketAddress(SalaChatInfo.LOCALHOST, Integer.parseInt(new String(msg).trim())));
+						ObjectInput objectInput = new ObjectInputStream(new ByteArrayInputStream(msg));
+						Object o = objectInput.readObject();
 
+						if(o != null && o instanceof Host) {
+							Host host= (Host) o;
+							System.out.println("Cliente nuevo: " + host.toString());
+							Thread.sleep(SalaChatInfo.MAX_LENGTH);
+							clientPorts.add(new InetSocketAddress(host.getIp(), host.getPort()));
+						}else {
+							System.err.println("El valor recibido no es válido.");
+						}
+						objectInput.close();
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
