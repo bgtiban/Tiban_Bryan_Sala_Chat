@@ -2,7 +2,8 @@ package sala.chat.comunes;
 
 import java.io.Serializable;
 
-public class Host implements Serializable {
+public class Socket implements Serializable {
+
 
 	/**
 	 *
@@ -10,31 +11,30 @@ public class Host implements Serializable {
 	private static final long serialVersionUID = -6200873504172925351L;
 
 
-	private String name;
 	private String ip;
-	private int port;
+	private Integer port;
 
-	public String getName() {
-		return name;
+	public Socket(String ip, Integer port) {
+		super();
+		this.ip = ip;
+		this.port = port;
 	}
-	public void setName(String name) {
-		this.name = name;
-	}
+
 	public String getIp() {
 		return ip;
 	}
 	public void setIp(String ip) {
 		this.ip = ip;
 	}
-	public int getPort() {
+	public Integer getPort() {
 		return port;
 	}
-	public void setPort(int port) {
+	public void setPort(Integer port) {
 		this.port = port;
 	}
 	@Override
 	public String toString() {
-		return "Host [name=" + name + ", ip=" + ip + ", port=" + port + "]";
+		return "Socket = " + ip + ":" + port;
 	}
 
 }

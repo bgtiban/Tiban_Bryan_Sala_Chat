@@ -12,7 +12,7 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.HashSet;
 
-import sala.chat.comunes.Host;
+import sala.chat.comunes.Socket;
 import sala.chat.comunes.constants.SalaChatInfo;
 
 /**
@@ -93,7 +93,7 @@ public class Server {
 	private void sendMulticast(byte[] message) throws UnknownHostException {
 		for (InetSocketAddress inetSocket : clientPorts) {
 			try {
-				DatagramPacket dp = new DatagramPacket(message, message.length, InetAddress.getByName(SalaChatInfo.LOCALHOST), inetSocket.getPort());
+				DatagramPacket dp = new DatagramPacket(message, message.length, InetAddress.getByName(inetSocket.getAddress().getHostAddress()), inetSocket.getPort());
 				socketServer.send(dp);
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -118,8 +118,8 @@ public class Server {
 						ObjectInput objectInput = new ObjectInputStream(new ByteArrayInputStream(msg));
 						Object o = objectInput.readObject();
 
-						if(o != null && o instanceof Host) {
-							Host host= (Host) o;
+						if(o != null && o instanceof Socket) {
+							Socket host= (Socket) o;
 							System.out.println("Cliente nuevo: " + host.toString());
 							Thread.sleep(SalaChatInfo.MAX_LENGTH);
 							clientPorts.add(new InetSocketAddress(host.getIp(), host.getPort()));

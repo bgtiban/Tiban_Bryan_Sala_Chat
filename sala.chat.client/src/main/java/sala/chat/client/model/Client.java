@@ -12,7 +12,8 @@ import java.net.InetSocketAddress;
 
 import javax.swing.JTextArea;
 
-import sala.chat.comunes.Host;
+import sala.chat.comunes.Server;
+import sala.chat.comunes.Socket;
 import sala.chat.comunes.constants.SalaChatInfo;
 
 /**
@@ -26,7 +27,8 @@ import sala.chat.comunes.constants.SalaChatInfo;
 public class Client {
 	private DatagramSocket socketClient;
 	private DatagramPacket packetReceiver, packetSender;
-	private byte[] msgReceiver;
+	private Server server;
+	private byte[] msgReceived;
 
 	/**
 	 * Este método instancia un DatagramSocket, mediante el cual se van a recibir
@@ -36,12 +38,12 @@ public class Client {
 	 *
 	 * @throws IOException
 	 */
-	public Client() throws IOException {
-		// puerto 0 = El S.O asigna un puerto libre.
-		socketClient = new DatagramSocket(new InetSocketAddress(SalaChatInfo.LOCALHOST, SalaChatInfo.FREE_PORT));
+	public Client(Socket client, Server server) throws IOException {
+		this.server = server;
+		socketClient = new DatagramSocket(new InetSocketAddress(client.getIp(), (client.getPort() == null || client.getPort() < 0 ? SalaChatInfo.FREE_PORT : client.getPort())));
 		sendMyHostToServer();
-		msgReceiver = new byte[SalaChatInfo.MAX_LENGTH];
-		packetReceiver = new DatagramPacket(msgReceiver, SalaChatInfo.MAX_LENGTH);
+		msgReceived = new byte[SalaChatInfo.MAX_LENGTH];
+		packetReceiver = new DatagramPacket(msgReceived, SalaChatInfo.MAX_LENGTH);
 
 	}
 
@@ -59,7 +61,7 @@ public class Client {
 			public void run() {
 				try {
 					packetSender = new DatagramPacket(message.getBytes(), message.getBytes().length,
-							InetAddress.getByName(SalaChatInfo.SERVER_HOST), SalaChatInfo.SERVER_PORT);
+							InetAddress.getByName(server.getSocket().getIp()), server.getSocket().getPort());
 					socketClient.send(packetSender);
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -81,13 +83,13 @@ public class Client {
 
 		while (true) {
 			try {
-				msgReceiver = new byte[SalaChatInfo.MAX_LENGTH];
-				packetReceiver = new DatagramPacket(msgReceiver, SalaChatInfo.MAX_LENGTH);
+				msgReceived = new byte[SalaChatInfo.MAX_LENGTH];
+				packetReceiver = new DatagramPacket(msgReceived, SalaChatInfo.MAX_LENGTH);
 				socketClient.receive(packetReceiver);
 				EventQueue.invokeAndWait(new Runnable() {
 					@Override
 					public void run() {
-						area.setText(area.getText() + new String(msgReceiver).trim() + "\n");
+						area.setText(area.getText() + new String(msgReceived).trim() + "\n");
 					}
 				});
 
@@ -108,16 +110,15 @@ public class Client {
 	 * @throws IOException
 	 */
 	private void sendMyHostToServer() throws IOException {
-		Host me = new Host();
-		me.setIp(socketClient.getLocalAddress().getHostAddress());
-		me.setPort(socketClient.getLocalPort());
+		Socket me = new Socket(socketClient.getLocalAddress().getHostAddress(), socketClient.getLocalPort());
 
 		ByteArrayOutputStream meBytesOS = new ByteArrayOutputStream(6400);
 		ObjectOutputStream oos = new ObjectOutputStream(meBytesOS);
 		oos.writeObject(me);
 		oos.flush();
 
-		DatagramPacket datagramPacket = new DatagramPacket(meBytesOS.toByteArray(), meBytesOS.toByteArray().length, InetAddress.getByName(SalaChatInfo.SERVER_HOST), SalaChatInfo.LISTENING_PORT_NEW_CONECTIONS);
+		DatagramPacket datagramPacket = new DatagramPacket(
+				meBytesOS.toByteArray(), meBytesOS.toByteArray().length, InetAddress.getByName(server.getSocket().getIp()), server.getListeningNewConnectios());
 		socketClient.send(datagramPacket);
 
 		oos.close();

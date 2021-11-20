@@ -7,8 +7,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.IOException;
-import java.net.SocketException;
-import java.net.UnknownHostException;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -28,20 +26,13 @@ public class JFClient extends JFrame{
 	private JTextField tfEnviar;
 	private JTextArea textArea;
 
-	public JFClient() {
+	public JFClient(Client client) {
 		setBackground(Color.DARK_GRAY);
 		setForeground(Color.ORANGE);
 		setFont(new Font("Copperplate Gothic Bold", Font.PLAIN, 15));
 
-		try {
-			client = new Client();
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		} catch (SocketException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		this.client = client;
+
 		getContentPane().setLayout(null);
 		setSize(572, 658);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
