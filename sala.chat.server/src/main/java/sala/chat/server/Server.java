@@ -8,66 +8,60 @@ import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.HashSet;
-import java.util.Iterator;
 
-import javax.swing.plaf.basic.BasicInternalFrameTitlePane.MaximizeAction;
+import sala.chat.comunes.constants.SalaChatInfo;
 
 /**
- * En esta clase se trabaja con UDP, existen en el servidor dos sockets que reciben paquetes,
- * un socket recibe un paquete con únicamente el nº de puerto del cliente, y otro socket recibe un paquete con el mensaje de texto enviado por el cliente.
- * este servidor muestra por consola mensajes los cuales informan de los clientes que se han conectado y los mensjaes que se est�n transmitiendo.
+ * En esta clase se trabaja con UDP, existen en el servidor dos sockets que
+ * reciben paquetes, un socket recibe un paquete con únicamente el nº de puerto
+ * del cliente, y otro socket recibe un paquete con el mensaje de texto enviado
+ * por el cliente. este servidor muestra por consola mensajes los cuales
+ * informan de los clientes que se han conectado y los mensjaes que se están
+ * transmitiendo.
+ *
  * @author Bryan Ti
  *
  */
-public class Server
-{
-	private byte[] message;
-	private final int MAX_LENGTH = 150;
-	private DatagramSocket socket;
-	private DatagramPacket packet;
-	private HashSet<Integer> hashPorts;
-
+public class Server {
+	private static final int LISTENING_PORT_NEW_CONECTIONS = 1234;
+	private DatagramSocket socketServer;
+	private HashSet<InetSocketAddress> ports = new HashSet<>();;
 
 	/**
-	 * M�todo que instancia una lista en la cual se almacenan los puertos de los clientes para poder realizar un "mulsticast" de un mensaje entrante.
-	 * Tambi�n se instancia el socket mediante el cual se van a recibir mensajes y se crea y activa un hilo para recibir los puertos.
-	 * Tambi�n se inicia el hilo mediante el cual se van a recibir los mensajes.
-	 * @param host, es el nombre o IP que recibir� el servidor (para recibir mensajes).
-	 * @param port, es el puerto por el que escuchar� el servidor (para recibir mensajes).
+	 * Constructor por defecto, inicia 2 hilos: uno para recibir conexiones nuevas de clientes y otro para envíar mensajes.
+	 *
+	 * @param host, es el nombre o IP que recibirá el servidor (para recibir
+	 *        mensajes).
+	 * @param port, es el puerto por el que escuchará el servidor (para recibir
+	 *        mensajes).
 	 * @throws SocketException
 	 * @throws IOException
 	 */
-	public Server(String host, int port) throws SocketException, IOException
-	{
-		hashPorts = new HashSet<>();
-		message = new byte[MAX_LENGTH];
-		socket = new DatagramSocket(new InetSocketAddress(host, port));
-		receiverPORT();//Hilo que recibe puertos
-		packet = new  DatagramPacket(message, MAX_LENGTH);
-		receiverMessages();//Hilo que recibe mensajes
+	public Server(String host, int port) throws SocketException, IOException {
+		socketServer = new DatagramSocket(new InetSocketAddress(host, port));
+		ThreadReceivePortNewClientConnected();
+		ThreadReceiverMessages();
 	}
 
 	/**
-	 * M�todo que crea un hilo el cual contiene un bucle que se encarga de recibir mensajes de los clientes,
-	 * en cuanto recibe un mensjae lo imprime por consola y lo reenv�a a todos los clientes conectados mediante el m�todo llamado send().
+	 * Método que crea un hilo el cual contiene un bucle que se encarga de recibir
+	 * mensajes de los clientes, en cuanto recibe un mensjae lo imprime por consola
+	 * y lo reenvía a todos los clientes conectados mediante el método {@link #sendMulticast(byte[])}
+	 *
 	 * @throws IOException
 	 */
-	private void receiverMessages() throws IOException
-	{
+	private void ThreadReceiverMessages() throws IOException {
 		Thread t = new Thread(new Runnable() {
-
 			@Override
 			public void run() {
-				while(true)
-				{
+				while (true) {
 					try {
-					message = new byte[MAX_LENGTH];
-					packet = new  DatagramPacket(message, MAX_LENGTH);
-					socket.receive(packet);
-					System.out.println("Un cliente dice: " + getMessage());
-					send();
-					}catch(Exception e)
-					{
+						byte[] lastMessageReceivedBytes = new byte[SalaChatInfo.MAX_LENGTH];
+						DatagramPacket packet = new DatagramPacket(lastMessageReceivedBytes, SalaChatInfo.MAX_LENGTH);
+						socketServer.receive(packet);
+						System.out.println(new String(lastMessageReceivedBytes).trim());
+						sendMulticast(lastMessageReceivedBytes);
+					} catch (IOException e) {
 						e.printStackTrace();
 					}
 				}
@@ -77,58 +71,42 @@ public class Server
 	}
 
 	/**
-	 * M�todo que retorna el mensaje del cliente en String.
-	 * @return, String  que corresponde con el mensaje del cliente.
-	 */
-	private String getMessage()
-	{
-		return new String(message).trim();
-	}
-
-
-	/**
-	 * Este m�todo recorre una lista que contiene los puertos de los clientes conectados.
-	 * se crea un datagrama nuevo por cada reenv�o.
+	 * Este método recorre una lista que contiene los puertos de los clientes
+	 * conectados. se crea un datagrama nuevo por cada reenvío.
+	 *
 	 * @throws UnknownHostException
 	 */
-	private void send() throws UnknownHostException
-	{
-		for (Iterator<Integer> iterator = hashPorts.iterator(); iterator.hasNext();) {
-		    Integer port = iterator.next();
-		    DatagramPacket dp = new DatagramPacket(getMessage().getBytes(), getMessage().getBytes().length, InetAddress.getByName("localhost"), port);
-		    try {
-				socket.send(dp);
+	private void sendMulticast(byte[] message) throws UnknownHostException {
+		for (InetSocketAddress port : ports) {
+			try {
+				DatagramPacket dp = new DatagramPacket(message, message.length, InetAddress.getByName(SalaChatInfo.LOCALHOST), port.getPort());
+				socketServer.send(dp);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
 
-
 	}
 
 	/**
-	 * Este m�todo inicia un hilo el cual recibe el puerto del cliente conectado.
+	 * Este método inicia un hilo el cual recibe el número de puerto del cliente conectado.
 	 */
-	private void receiverPORT()
-	{
+	private void ThreadReceivePortNewClientConnected() {
 		Thread t = new Thread(new Runnable() {
 			@Override
 			public void run() {
-					try {
-						DatagramSocket socket2 = new DatagramSocket(new InetSocketAddress("localhost", 1234));
-						byte[] msg = new byte[10];
-						DatagramPacket packet2 = new DatagramPacket(msg, 10);
-						while(true)
-						{
-							socket2.receive(packet2);
+				try (DatagramSocket socketReceptor = new DatagramSocket(new InetSocketAddress(SalaChatInfo.LOCALHOST, LISTENING_PORT_NEW_CONECTIONS))) {
+					byte[] msg = new byte[10];
+					DatagramPacket receivedPacket = new DatagramPacket(msg, 10);
+					while (true) {
+						socketReceptor.receive(receivedPacket);
 
-							System.out.println("Cliente nuevo con puerto: " + new String(msg).trim());
-							Thread.sleep(2000);
-							hashPorts.add(Integer.parseInt(new String(msg).trim()));
+						System.out.println("Cliente nuevo con puerto: " + new String(msg).trim());
+						Thread.sleep(2000);
+						ports.add(new InetSocketAddress(SalaChatInfo.LOCALHOST, Integer.parseInt(new String(msg).trim())));
 
-						}
-				}catch(Exception e){
+					}
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
 
@@ -137,12 +115,3 @@ public class Server
 		t.start();
 	}
 }
-
-
-
-
-
-
-
-
-

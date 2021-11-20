@@ -6,5 +6,12 @@ public final class SalaChatInfo {
 
 	}
 
-	public static final String SERVER_PORT = "2456";
+	public static final int SERVER_PORT = 5555;
+
+	public static final int MAX_LENGTH = 2000;
+
+	public static final String LOCALHOST = "localhost";
+
+	public static final String SERVER_HOST = LOCALHOST;
+
 }
