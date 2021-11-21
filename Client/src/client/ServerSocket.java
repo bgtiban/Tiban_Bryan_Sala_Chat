@@ -1,8 +1,8 @@
-package sala.chat.comunes;
+package client;
 
 import java.io.Serializable;
 
-public class Server implements Serializable {
+public class ServerSocket implements Serializable {
 
 	/**
 	 *
@@ -13,7 +13,7 @@ public class Server implements Serializable {
 	private Socket socket;
 	private Integer listeningNewConnectiosPort;
 
-	public Server(Socket socket, Integer listeningNewConnectiosPort) {
+	public ServerSocket(Socket socket, Integer listeningNewConnectiosPort) {
 		super();
 		this.socket = socket;
 		this.listeningNewConnectiosPort = listeningNewConnectiosPort;

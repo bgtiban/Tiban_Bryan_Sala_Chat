@@ -1,4 +1,4 @@
-package sala.chat.client.view;
+package client;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -14,8 +14,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
-
-import sala.chat.client.model.Client;
 
 public class JFClient extends JFrame{
 

@@ -1,4 +1,4 @@
-package sala.chat.server;
+package server;
 
 public class MainServer {
 

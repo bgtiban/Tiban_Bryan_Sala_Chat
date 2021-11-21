@@ -1,4 +1,4 @@
-package sala.chat.client.model;
+package client;
 
 import java.awt.EventQueue;
 import java.io.ByteArrayOutputStream;
@@ -9,12 +9,11 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 
 import javax.swing.JTextArea;
 
-import sala.chat.comunes.Server;
-import sala.chat.comunes.Socket;
-import sala.chat.comunes.constants.SalaChatInfo;
 
 /**
  * En esta clase se trabaja sobre UDP, es capaz de recibir y enviar los mensajes
@@ -27,7 +26,7 @@ import sala.chat.comunes.constants.SalaChatInfo;
 public class Client {
 	private DatagramSocket socketClient;
 	private DatagramPacket packetReceiver, packetSender;
-	private Server server;
+	private ServerSocket server;
 	private byte[] msgReceived;
 
 	/**
@@ -38,13 +37,25 @@ public class Client {
 	 *
 	 * @throws IOException
 	 */
-	public Client(Socket client, Server server) throws IOException {
+	public Client(ServerSocket server) throws IOException {
 		this.server = server;
-		socketClient = new DatagramSocket(new InetSocketAddress(client.getIp(), (client.getPort() == null || client.getPort() < 0 ? SalaChatInfo.FREE_PORT : client.getPort())));
+
+		socketClient = new DatagramSocket(new InetSocketAddress(getIp(), 0));
 		sendMyHostToServer();
 		msgReceived = new byte[SalaChatInfo.MAX_LENGTH];
 		packetReceiver = new DatagramPacket(msgReceived, SalaChatInfo.MAX_LENGTH);
 
+	}
+
+	private String getIp() throws UnknownHostException, SocketException {
+		String ip = null;
+
+		try(final DatagramSocket socket = new DatagramSocket()){
+		  socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
+		  ip = socket.getLocalAddress().getHostAddress();
+		}
+
+		return ip;
 	}
 
 	/**

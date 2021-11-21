@@ -1,4 +1,4 @@
-package sala.chat.server;
+package server;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -12,8 +12,7 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.HashSet;
 
-import sala.chat.comunes.Socket;
-import sala.chat.comunes.constants.SalaChatInfo;
+import client.Socket;
 
 /**
  * En esta clase se trabaja con UDP, existen en el servidor dos sockets que

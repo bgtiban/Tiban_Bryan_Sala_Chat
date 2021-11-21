@@ -1,4 +1,4 @@
-package sala.chat.comunes;
+package client;
 
 import java.io.Serializable;
 
@@ -8,7 +8,7 @@ public class Socket implements Serializable {
 	/**
 	 *
 	 */
-	private static final long serialVersionUID = -6200873504172925351L;
+	private static final long serialVersionUID = 1L;
 
 
 	private String ip;

@@ -1,4 +1,4 @@
-package sala.chat.comunes.constants;
+package server;
 
 public final class SalaChatInfo {
 
