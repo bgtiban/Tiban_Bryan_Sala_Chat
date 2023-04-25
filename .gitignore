@@ -4,4 +4,7 @@
 .metadata
 .project
 .settings/
+.idea/
 *.jar
+*.iml
+/out/
